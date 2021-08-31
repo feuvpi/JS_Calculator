@@ -2,6 +2,8 @@ class CalcController {
 
     constructor(){
 
+        this._lastOperator = '';
+        this._lastNumber = '';
         this._operation = [];
         this._locale = 'pt-BR';
         this._displayCalcEl = document.querySelector("#display");
@@ -15,9 +17,6 @@ class CalcController {
 
 
 
-
-
-
     initialize(){
 
         this.setDisplayDateTime();
@@ -25,6 +24,8 @@ class CalcController {
         setInterval(() => {
            this.setDisplayDateTime();
         }, 1000);
+
+        this.setLastNumberToDisplay();
  
      }
 
@@ -43,12 +44,13 @@ class CalcController {
      }
 
      clearAll(){
-        this._operation = [];
-        this.displayCalc = "";
+        this._operation = [0];
+        this.setLastNumberToDisplay();
      }
 
      cancelEntry(){
         this._operation.pop();
+        this.setLastNumberToDisplay();
      }
 
      isOperator(value){
@@ -61,16 +63,54 @@ class CalcController {
 
     }
 
+    getResult(){
+        return eval(this._operation.join(""));
+    }
+
     calc(){
 
-        let last = this._operation.pop();
-
-        let result = eval(this._operation.join(""));
+        if(this._operation.length > 3){
+            let last = this._operation.pop();
+            this._lastOperator = this.getLastItem();
+            this._lastNumber = this.getLastItem(false);
+            let result = this.getResult();
+            
+            if(last == '%'){
+    
+                result = result / 100;
+                this._operation = [result];
+                this.setLastNumberToDisplay();
+    
+            }
+    
+            else{
+                
+                this._operation = [result, last];
         
-        this._operation = [result, last];
+                this.setLastNumberToDisplay();
+            }
 
-        this.setLastNumberToDisplay();
+        }
+        
+        else if (this._operation.length == 3){ 
 
+            this._lastOperator = this.getLastItem();
+            this._lastNumber = this.getLastItem(false);
+        
+            this._operation = [this.getResult()];
+            this.setLastNumberToDisplay();
+           
+        }
+
+        else{
+            //criar funcionalidade para utilizar o mesmo numero caso seja um numero e um operador
+            this.pushOperation(this._lastOperator);
+            this.pushOperation(this._lastNumber);
+            this._operation = [this.getResult()];
+            this.setLastNumberToDisplay();
+           
+        }
+       
     }
 
     pushOperation(value){
@@ -84,19 +124,32 @@ class CalcController {
         }
 
     }
+    
+    getLastItem(isOperator = true){
+
+        let lastItem;
+
+            for(let i = this._operation.length-1; i >=0; i--){
+                if(this.isOperator(this._operation[i]) == isOperator){
+                    lastItem = this._operation[i];
+                    break;
+                }
+
+            }
+
+        return lastItem;
+
+    }
 
     setLastNumberToDisplay(){
 
-            let lastNumber;
+        let lastNumber = this.getLastItem(false);
 
-            for(let i = this._operation.length-1; i >=0; i--){
-                if(!this.isOperator(this._operation[i])){
-                    lastNumber = this._operation[i];
-                    break;
-                }
-            }
+          
+        if (!lastNumber) lastNumber = 0;
 
-        this.displayCalc = lastNumber;            
+        this.displayCalc = lastNumber;    
+        console.log(this._operation);        
 
     }
 
@@ -142,6 +195,12 @@ class CalcController {
      setError(){
          this.displayCalc = "Error";
      }
+
+     getResultado(){
+         this.calc();
+         this._continueOperation = true;
+
+     }
     
      execBtn(value){
          switch(value){
@@ -163,11 +222,11 @@ class CalcController {
             case 'multiplicacao':
                 this.addOperation('*');
                 break;
-            case 'percentual':
+            case 'porcento':
                 this.addOperation('%');
                 break;
-            case 'resultado':
-                this.addOperation('=');
+            case 'igual':
+                this.calc();
                 break;
             case 'ponto':
                 this.addOperation('.');
