@@ -149,7 +149,23 @@ class CalcController {
         if (!lastNumber) lastNumber = 0;
 
         this.displayCalc = lastNumber;    
-        console.log(this._operation);        
+        console.log(this._operation);
+        
+        
+
+    }
+
+    addPonto(){
+
+        let lastOperation = this.getLastOperation();
+
+        console.log(lastOperation);
+
+        if (this.isOperator(lastOperation) || !lastOperation){
+            this.pushOperation('0.');
+        } else{
+            this.setLastOperation(lastOperation.toString() + '.');
+        }
 
     }
 
@@ -158,10 +174,6 @@ class CalcController {
         if(isNaN(this.getLastOperation())){
             if(this.isOperator(value)){
                 this._operation[this._operation.length-1] = value;
-            }
-
-            else if (isNaN(value)){
-
             }
 
             else {
@@ -175,8 +187,10 @@ class CalcController {
                 this.pushOperation(value);
             }  
             else{
+
+                //criar funcionalidade para evitar que um numero inserido apos o resultado pelo botao de resultado continue concatenando
                 let updatedValue = this.getLastOperation().toString() + value.toString();
-                this.setLastOperation(parseInt(updatedValue));
+                this.setLastOperation(parseFloat(updatedValue));
 
                 this.setLastNumberToDisplay();
             } 
@@ -229,7 +243,7 @@ class CalcController {
                 this.calc();
                 break;
             case 'ponto':
-                this.addOperation('.');
+                this.addPonto();
                 break;
             
             case '0':
@@ -242,7 +256,7 @@ class CalcController {
             case '7':
             case '8':
             case '9':
-                this.addOperation(parseInt(value));
+                this.addOperation(parseFloat(value));
                 break;
 
             default:
