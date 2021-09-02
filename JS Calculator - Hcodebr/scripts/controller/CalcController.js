@@ -2,6 +2,7 @@ class CalcController {
 
     constructor(){
 
+        this._lastOperatorWasResult = false;
         this._lastOperator = '';
         this._lastNumber = '';
         this._operation = [];
@@ -163,8 +164,15 @@ class CalcController {
 
         if (this.isOperator(lastOperation) || !lastOperation){
             this.pushOperation('0.');
-        } else{
+        }else if(this._lastOperatorWasResult == true){
+            this._operation.pop();
+            this.pushOperation('0.');
+            this.setLastNumberToDisplay();
+            this._lastOperatorWasResult = false;
+        }
+         else{
             this.setLastOperation(lastOperation.toString() + '.');
+            this.setLastNumberToDisplay();
         }
 
     }
@@ -188,11 +196,19 @@ class CalcController {
             }  
             else{
 
-                //criar funcionalidade para evitar que um numero inserido apos o resultado pelo botao de resultado continue concatenando
-                let updatedValue = this.getLastOperation().toString() + value.toString();
-                this.setLastOperation(parseFloat(updatedValue));
+               if(this._lastOperatorWasResult == true){
+                    this._operation.pop();
+                    this.pushOperation(value);
+                    this.setLastNumberToDisplay();
+                    this._lastOperatorWasResult = false;
+               }else{
+                    //criar funcionalidade para evitar que um numero inserido apos o resultado pelo botao de resultado nao continue concatenando
+                    let updatedValue = this.getLastOperation().toString() + value.toString();
+                    this.setLastOperation(parseFloat(updatedValue));
+                    this.setLastNumberToDisplay();
+               } 
 
-                this.setLastNumberToDisplay();
+               
             } 
             
              
@@ -241,6 +257,7 @@ class CalcController {
                 break;
             case 'igual':
                 this.calc();
+                this._lastOperatorWasResult = true;
                 break;
             case 'ponto':
                 this.addPonto();
