@@ -64,8 +64,26 @@ class CalcController {
 
     }
 
+    countDecimals(value){
+        let number_string = value.toString();
+        //console.log("number_string", number_string);
+        let index = number_string.indexOf(".");
+        //console.log("index", index);
+        let decimals = number_string.length - index - 1;
+        //console.log("decimals", decimals);
+        return decimals;
+    }
+
     getResult(){
-        return eval(this._operation.join(""));
+        if(parseFloat(this.countDecimals((eval(this._operation.join(""))))) > 5){
+            console.log("decimais achadas", this.countDecimals((eval(this._operation.join("")))))
+            return (eval(this._operation.join(""))).toFixed(5)
+        }else{
+            console.log("decimais achadas", parseFloat(this.countDecimals((eval(this._operation.join(""))))))
+            return (eval(this._operation.join("")))
+        }
+        //criarconsole.log("numero de decimais", this.countDecimals((eval(this._operation.join("")))))
+        
     }
 
     calc(){
@@ -204,7 +222,7 @@ class CalcController {
                }else{
                     //criar funcionalidade para evitar que um numero inserido apos o resultado pelo botao de resultado nao continue concatenando
                     let updatedValue = this.getLastOperation().toString() + value.toString();
-                    this.setLastOperation(parseFloat(updatedValue));
+                    this.setLastOperation(updatedValue);
                     this.setLastNumberToDisplay();
                } 
 
@@ -228,7 +246,7 @@ class CalcController {
 
      getResultado(){
          this.calc();
-         this._continueOperation = true;
+         //this._continueOperation = true;
 
      }
     
